@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const tenant_controller_1 = require("../controller/tenant-controller");
+const protectedRoutes_1 = require("../middlewares/protectedRoutes");
+const tenantRouter = (0, express_1.Router)();
+tenantRouter.post('/', protectedRoutes_1.protectedRoutes, tenant_controller_1.handleCreateTenant);
+tenantRouter.get('/:find', protectedRoutes_1.protectedRoutes, tenant_controller_1.handleFindTenant);
+tenantRouter.get('/', protectedRoutes_1.protectedRoutes, tenant_controller_1.FetchTenant);
+exports.default = tenantRouter;

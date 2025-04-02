@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const protectedRoutes_1 = require("../middlewares/protectedRoutes");
+const space_controller_1 = require("../controller/space-controller");
+const user_controller_1 = require("../controller/user-controller");
+const spaceRouter = (0, express_1.Router)();
+spaceRouter.post('/', protectedRoutes_1.protectedRoutes, space_controller_1.handleCreateSpace);
+spaceRouter.get('/:userId', protectedRoutes_1.protectedRoutes, user_controller_1.handleGetUserSpace);
+exports.default = spaceRouter;

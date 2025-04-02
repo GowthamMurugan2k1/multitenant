@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role     @default(OWNER)
+  user      User[]
+  space     Space[]
+}
+
+model User {
+  name           String
+  id             String           @id @default(uuid())
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  role           Role             @default(USER)
+  emailId        String           @unique
+  password       String
+  profilePic     String?
+  tenantId       String?
+  refreshToken   String @default("")
+  Tasks          Task[]
+  space          Space[]
+  Task_Assignees Task_Assignees[]
+  tenant         Tenant?          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Space {
+  id        String   @id @default(uuid())
+  spaceName String
+  spaceIcon String?
+  role      Role     @default(OWNER)
+  list      List[]
+  user      User     @relation(fields: [userId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model List {
+  id        String   @id @default(uuid())
+  listName  String
+  Tasks     Task[]
+  color     String
+  userId    String
+  spaceId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  space     Space    @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id             String           @id @default(uuid())
+  title          String
+  description    String?
+  status         String           @default("Todo")
+  listId         String
+  userId         String
+  tags           String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  task_assignees Task_Assignees[]
+
+  list       List  @relation(fields: [listId], references: [id])
+  assignedTo User? @relation(fields: [userId], references: [id])
+}
+
+model Task_Assignees {
+  id     String @id @default(uuid())
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+}
+
+enum Role {
+  OWNER
+  USER
+  ADMIN
+}
